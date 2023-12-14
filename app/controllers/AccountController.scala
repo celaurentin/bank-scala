@@ -13,7 +13,10 @@ import service.AccountServiceImpl
  * Account endpoints.
  */
 @Singleton
-class AccountController @Inject() (cc: ControllerComponents, accountService: AccountServiceImpl)(
+class AccountController @Inject() (
+    cc: ControllerComponents,
+    accountService: AccountServiceImpl
+)(
     implicit assetsFinder: AssetsFinder,
     implicit val ec: ExecutionContext
 ) extends AbstractController(cc) {
