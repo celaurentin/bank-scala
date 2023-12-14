@@ -1,7 +1,9 @@
 import FunctionalSpec.expectedResponse
+import controllers.model.TransactionRequest
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
@@ -11,19 +13,32 @@ import play.api.test.Helpers._
  */
 class FunctionalSpec extends PlaySpec with GuiceOneAppPerSuite {
 
-  "Routes" should {
+  "Account Route" should {
 
-    "send 404 on a bad request" in  {
-      route(app, FakeRequest(GET, "/arepas")).map(status(_)) mustBe Some(NOT_FOUND)
+    "send 404 on empty accountId" in {
+      route(app, FakeRequest(GET, "/account")).map(status(_)) mustBe Some(NOT_FOUND)
     }
-
-    "send 400 on a bad request (missing request params)" in  {
-      route(app, FakeRequest(GET, "/loan/report")).map(status(_)) mustBe Some(BAD_REQUEST)
-    }
-
   }
 
-  "LendingController" should {
+  "Transaction Routes" should {
+
+    "send 415 on invalid payload" in {
+      route(app, FakeRequest(POST, "/transaction")).map(status(_)) mustBe Some(UNSUPPORTED_MEDIA_TYPE)
+    }
+
+    "send 400 on a bad request (empty payload)" in {
+      val body = Json.obj()
+      route(app, FakeRequest(POST, "/transaction").withJsonBody(body)).map(status(_)) mustBe Some(BAD_REQUEST)
+    }
+
+    "send 400 on a bad request (missing field)" in {
+      val body = Json.obj(("accountId","1234"),("amount",10.99))
+      route(app, FakeRequest(POST, "/transaction").withJsonBody(body)).map(status(_)) mustBe Some(BAD_REQUEST)
+    }
+  }
+
+
+  /*"LendingController" should {
     "render report data" in {
       val report = route(app, FakeRequest(GET, "/loan/report?reportType=Amount&groupingKey=Grade")).get
 
@@ -32,7 +47,7 @@ class FunctionalSpec extends PlaySpec with GuiceOneAppPerSuite {
       contentAsString(report) must include (expectedResponse)
     }
 
-  }
+  }*/
 }
 
 object FunctionalSpec {
