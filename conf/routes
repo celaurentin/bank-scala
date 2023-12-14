@@ -3,12 +3,12 @@
 # ~~~~
 
 # Account
-GET     /account/:accountId                 controllers.AccountController.getAccount(accountId: String)
+GET     /account/:accountId                 controller.AccountController.getAccount(accountId: String)
 
 # Transaction
-POST    /transaction                        controllers.TransactionController.create
+POST    /transaction                        controller.TransactionController.create
 
-GET     /transaction/history/:accountId     controllers.TransactionController.getHistory(accountId: String)
+GET     /transaction/history/:accountId     controller.TransactionController.getHistory(accountId: String)
 
 
 # Map static resources from the /public folder to the /assets URL path

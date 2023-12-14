@@ -1,4 +1,4 @@
-package controllers.model
+package controller.model
 
 import play.api.libs.json._
 import service.model.AccountStatus

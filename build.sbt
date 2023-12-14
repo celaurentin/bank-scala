@@ -12,7 +12,8 @@ lazy val root = (project in file("."))
       "com.github.tototoshi" %% "scala-csv" % "1.3.10",
       "org.scalamock" %% "scalamock" % "5.2.0" % Test,
       "org.scalatestplus" %% "mockito-4-11" % "3.2.17.0" % "test",
-      "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test
+      "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
+      "com.typesafe.slick" %% "slick" % "3.4.1"
     ),
     scalacOptions ++= Seq(
       "-feature",

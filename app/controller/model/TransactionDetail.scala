@@ -1,4 +1,4 @@
-package controllers.model
+package controller.model
 
 import java.time.LocalDate
 
@@ -7,7 +7,7 @@ import play.api.libs.json.OFormat
 import service.model.TransactionStatus
 
 case class TransactionDetail(
-    transactionId: String,
+    transactionId: Long,
     accountId: String,
     amount: Double,
     description: String,

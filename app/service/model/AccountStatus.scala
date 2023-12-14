@@ -10,6 +10,6 @@ object AccountStatus extends Enum[AccountStatus] with PlayJsonEnum[AccountStatus
   override val values: immutable.IndexedSeq[AccountStatus] = findValues
 
   case object ACTIVE  extends AccountStatus
-  case object BLOCKED extends AccountStatus
+  case object INACTIVE extends AccountStatus
 
 }

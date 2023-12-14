@@ -1,13 +1,11 @@
 package service
 
+import controller.model.{AccountDetail, User}
 import javax.inject.Inject
 import javax.inject.Singleton
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
-import controllers.model.AccountDetail
-import controllers.model.User
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import service.model.AccountStatus

@@ -1,5 +1,5 @@
 import FunctionalSpec.expectedResponse
-import controllers.model.TransactionRequest
+import controller.model.TransactionRequest
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status

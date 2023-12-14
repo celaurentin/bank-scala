@@ -1,9 +1,9 @@
-package controllers
+package controller
+
+import controllers.AssetsFinder
 
 import javax.inject._
-
 import scala.concurrent.ExecutionContext
-
 import play.api.libs.json.Json
 import play.api.mvc._
 import service.AccountServiceImpl

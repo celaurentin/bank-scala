@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scala.util.Random
 
 import com.google.inject.Singleton
-import controllers.model.TransactionDetail
+import controller.model.TransactionDetail
 import service.model.TransactionStatus
 
 trait TransactionService {
@@ -32,7 +32,7 @@ class TransactionServiceImpl @Inject() (accountService: AccountServiceImpl, impl
   ): Future[List[TransactionDetail]] = Future {
     List(
       TransactionDetail(
-        Random.nextInt(9999999).toString,
+        Random.nextInt(9999999),
         accountId,
         35.01,
         "POS:DESC: Target",
@@ -50,7 +50,7 @@ class TransactionServiceImpl @Inject() (accountService: AccountServiceImpl, impl
   override def createTransaction(accountId: String, amount: Double, description: String): Future[TransactionDetail] =
     Future {
       TransactionDetail(
-        Random.nextInt(9999999).toString,
+        Random.nextInt(9999999),
         accountId,
         amount,
         description,
