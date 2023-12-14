@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 case class User(
     userId: Long,
-    name: String,
+    firstName: String,
     lastName: String,
     dateOfBirth: LocalDate,
     email: Option[String],

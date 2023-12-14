@@ -4,15 +4,15 @@ import play.api.libs.json._
 import service.model.AccountStatus
 
 case class AccountDetail(
-    accountId: Long,
+    accountId: String,
     balance: Double,
     status: AccountStatus,
     user: User
 )
 
 case class User(
-    userId: Long,
-    name: String,
+    userId: String,
+    firstName: String,
     lastName: String
 )
 

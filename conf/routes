@@ -2,8 +2,14 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /account                controllers.BankController.getAccount(accountId: String)
+# Account
+GET     /account/:accountId                 controllers.AccountController.getAccount(accountId: String)
+
+# Transaction
+POST    /transaction                        controllers.TransactionController.create
+
+GET     /transaction/history/:accountId     controllers.TransactionController.getHistory(accountId: String)
+
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(file)
+GET     /assets/*file              controllers.Assets.versioned(file)

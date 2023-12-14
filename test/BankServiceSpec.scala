@@ -26,7 +26,7 @@ class BankServiceSpec extends AnyFunSpec with Matchers with MockitoSugar with Fi
     describe("Amount") {
       it("should be a valid total loans by grade report") {
         when(loanDataAccessService.getAccountById(any())).thenReturn(Future.successful(allRecords))
-        val result = loanService.getTransactions(
+        val result = loanService.getHistory(
           accountId = ReportType.Amount.entryName,
           groupingKey = ReportFilter.Grade.entryName
         )
@@ -34,7 +34,7 @@ class BankServiceSpec extends AnyFunSpec with Matchers with MockitoSugar with Fi
       }
       it("should be a valid total loans by state report") {
         when(loanDataAccessService.getAccountById(any())).thenReturn(Future.successful(allRecords))
-        val result = loanService.getTransactions(
+        val result = loanService.getHistory(
           accountId = ReportType.Amount.entryName,
           groupingKey = ReportFilter.State.entryName
         )
@@ -45,7 +45,7 @@ class BankServiceSpec extends AnyFunSpec with Matchers with MockitoSugar with Fi
     describe("Count") {
       it("should be a valid total loans by grade report") {
         when(loanDataAccessService.getAccountById(any())).thenReturn(Future.successful(allRecords))
-        val result = loanService.getTransactions(
+        val result = loanService.getHistory(
           accountId = ReportType.Count.entryName,
           groupingKey = ReportFilter.Grade.entryName
         )
@@ -53,7 +53,7 @@ class BankServiceSpec extends AnyFunSpec with Matchers with MockitoSugar with Fi
       }
       it("should be a valid total loans by state report") {
         when(loanDataAccessService.getAccountById(any())).thenReturn(Future.successful(allRecords))
-        val result = loanService.getTransactions(
+        val result = loanService.getHistory(
           accountId = ReportType.Count.entryName,
           groupingKey = ReportFilter.State.entryName
         )

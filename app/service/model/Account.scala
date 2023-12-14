@@ -1,8 +1,8 @@
 package service.model
 
 case class Account(
-    accountId: Long,
-    userId: Long,
+    accountId: String,
+    userId: String,
     balance: Double,
     status: AccountStatus
 )

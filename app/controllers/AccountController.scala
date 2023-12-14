@@ -10,10 +10,10 @@ import service.AccountServiceImpl
 
 /**
  * This controller creates an async `Action` to handle HTTP requests to the
- * application endpoints.
+ * Account endpoints.
  */
 @Singleton
-class BankController @Inject() (cc: ControllerComponents, accountService: AccountServiceImpl)(
+class AccountController @Inject() (cc: ControllerComponents, accountService: AccountServiceImpl)(
     implicit assetsFinder: AssetsFinder,
     implicit val ec: ExecutionContext
 ) extends AbstractController(cc) {
