@@ -1,0 +1,24 @@
+logs
+target
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+.idea/workspace.xml
+
+.env
+.idea
+
+.bloop
+project/metals.sbt
+
+#Ignore Cookie Jars from CURL - generated when testing Authed Endpoints.
+cookie.txt
+
+#https://stackoverflow.com/questions/30737082/what-are-iml-files-in-android-studio
+*.iml
+
+#ignore .java-version by jenv
+.java-version
+
+.DS_Store
