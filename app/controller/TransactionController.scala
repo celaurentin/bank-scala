@@ -1,10 +1,11 @@
 package controller
 
+import javax.inject.Inject
+
+import scala.concurrent.ExecutionContext
+
 import controller.model.TransactionRequest
 import controllers.AssetsFinder
-
-import javax.inject.Inject
-import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json
 import play.api.mvc.AbstractController
 import play.api.mvc.Action
@@ -25,7 +26,21 @@ class TransactionController @Inject() (
       .getHistory(
         accountId
       )
-      .map(r => Ok(Json.toJson(r)))
+      .map {
+        case Right(r) => Ok(Json.toJson(r))
+        case Left(_)  => NotFound
+      }
+  }
+
+  def getTransaction(transactionId: Long): Action[AnyContent] = Action.async {
+    transactionService
+      .getTransactionById(
+        transactionId
+      )
+      .map {
+        case Right(t) => Ok(Json.toJson(t))
+        case Left(_)  => NotFound
+      }
   }
 
   def create: Action[TransactionRequest] = Action.async(parse.json[TransactionRequest]) { implicit request =>

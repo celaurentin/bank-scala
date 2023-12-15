@@ -1,6 +1,6 @@
 package controller.model
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 import play.api.libs.json.OFormat
@@ -12,7 +12,7 @@ case class TransactionDetail(
     amount: Double,
     description: String,
     status: TransactionStatus,
-    date: LocalDate
+    date: LocalDateTime
 )
 
 object TransactionDetail {

@@ -1,12 +1,12 @@
 package service.model
 
-import java.time.LocalDate
+import java.sql.Timestamp
 
 case class Transaction(
     transactionId: Long,
     accountId: String,
     amount: Double,
     description: String,
-    status: TransactionStatus,
-    timestamp: LocalDate
+    status: String,
+    created: Timestamp
 )

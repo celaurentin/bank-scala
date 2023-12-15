@@ -1,6 +1,6 @@
 package service
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 import scala.concurrent.ExecutionContext
@@ -9,12 +9,17 @@ import scala.util.Random
 
 import com.google.inject.Singleton
 import controller.model.TransactionDetail
+import repository.TransactionRepository
 import service.model.TransactionStatus
 
 trait TransactionService {
   def getHistory(
       accountId: String
-  ): Future[List[TransactionDetail]]
+  ): Future[Either[String, List[TransactionDetail]]]
+
+  def getTransactionById(
+      transactionId: Long
+  ): Future[Either[String, TransactionDetail]]
 
   def createTransaction(
       accountId: String,
@@ -24,20 +29,22 @@ trait TransactionService {
 }
 
 @Singleton
-class TransactionServiceImpl @Inject() (accountService: AccountServiceImpl, implicit val ec: ExecutionContext)
+class TransactionServiceImpl @Inject() (transactionRepository: TransactionRepository, implicit val ec: ExecutionContext)
     extends TransactionService {
 
   override def getHistory(
       accountId: String
-  ): Future[List[TransactionDetail]] = Future {
-    List(
-      TransactionDetail(
-        Random.nextInt(9999999),
-        accountId,
-        35.01,
-        "POS:DESC: Target",
-        TransactionStatus.COMPLETED,
-        LocalDate.now()
+  ): Future[Either[String, List[TransactionDetail]]] = Future {
+    Right(
+      List(
+        TransactionDetail(
+          Random.nextInt(9999999),
+          accountId,
+          35.01,
+          "POS:DESC: Target",
+          TransactionStatus.COMPLETED,
+          LocalDateTime.now()
+        )
       )
     )
   }
@@ -55,7 +62,26 @@ class TransactionServiceImpl @Inject() (accountService: AccountServiceImpl, impl
         amount,
         description,
         TransactionStatus.COMPLETED,
-        LocalDate.now()
+        LocalDateTime.now()
       )
     }
+
+  override def getTransactionById(transactionId: Long): Future[Either[String, TransactionDetail]] = {
+    transactionRepository
+      .findById(transactionId)
+      .map {
+        case Some(t) =>
+          Right(
+            TransactionDetail(
+              transactionId = transactionId,
+              accountId = t.accountId,
+              amount = t.amount,
+              description = t.description,
+              status = TransactionStatus.withName(t.status),
+              date = t.created.toLocalDateTime
+            )
+          )
+        case _ => Left("Transaction not found")
+      }
+  }
 }
