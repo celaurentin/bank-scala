@@ -1,9 +1,10 @@
 package controller
 
-import controllers.AssetsFinder
-
 import javax.inject._
+
 import scala.concurrent.ExecutionContext
+
+import controllers.AssetsFinder
 import play.api.libs.json.Json
 import play.api.mvc._
 import service.AccountServiceImpl
@@ -26,7 +27,10 @@ class AccountController @Inject() (
       .getAccountById(
         accountId
       )
-      .map(r => Ok(Json.toJson(r)))
+      .map {
+        case Right(r) => Ok(Json.toJson(r))
+        case Left(_)  => NotFound
+      }
   }
 
 }

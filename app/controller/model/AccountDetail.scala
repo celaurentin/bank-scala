@@ -7,11 +7,11 @@ case class AccountDetail(
     accountId: String,
     balance: Double,
     status: AccountStatus,
-    user: User
+    user: UserDetail
 )
 
-case class User(
-    userId: String,
+case class UserDetail(
+    userId: Long,
     firstName: String,
     lastName: String
 )
@@ -21,7 +21,7 @@ object AccountDetail {
 
 }
 
-object User {
-  implicit val UserFormat: OWrites[User] = Json.writes[User]
+object UserDetail {
+  implicit val UserFormat: OWrites[UserDetail] = Json.writes[UserDetail]
 
 }
