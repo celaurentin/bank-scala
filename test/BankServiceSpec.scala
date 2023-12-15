@@ -11,7 +11,7 @@ class BankServiceSpec extends AnyFunSpec with Matchers with MockitoSugar {
   implicit val ec: ExecutionContextExecutor     = scala.concurrent.ExecutionContext.global
   val loanDataAccessService: AccountServiceImpl = mock[AccountServiceImpl]
 
-  val loanService = new TransactionServiceImpl(loanDataAccessService, ec)
+  //val loanService = new TransactionServiceImpl(loanDataAccessService, ec)
 
   /*describe("getLoansReport") {
     describe("Amount") {
