@@ -69,8 +69,8 @@ class FunctionalSpec extends PlaySpec with GuiceOneAppPerSuite with Fixture {
       contentType(response) mustBe Some("application/json")
       val json = contentAsJson(response)
       json.as[JsArray].value.size mustBe 2
-      json.as[List[TransactionDetail]].map(_.transactionId) mustBe List(expectedId1, expectedId2)
-      json.as[List[TransactionDetail]].map(_.amount) mustBe List(expectedAmount1, expectedAmount2)
+      json.as[List[TransactionDetail]].map(_.transactionId) mustBe List(expectedId2, expectedId1)
+      json.as[List[TransactionDetail]].map(_.amount) mustBe List(expectedAmount2, expectedAmount1)
     }
   }
 }

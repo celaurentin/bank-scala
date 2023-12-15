@@ -46,7 +46,7 @@ class TransactionServiceImpl @Inject() (
         case Some(account) =>
           transactionRepository
             .findByAccountId(account.accountId)
-            .map(x => Right(convert(x)))
+            .map(transactions => Right(convert(transactions).sortBy(_.date).reverse))
         case _ => Future.successful(Left("Account not found"))
       }
 
