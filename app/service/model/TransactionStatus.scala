@@ -13,3 +13,13 @@ object TransactionStatus extends Enum[TransactionStatus] with PlayJsonEnum[Trans
   case object COMPLETED extends TransactionStatus
   case object FAILED    extends TransactionStatus
 }
+
+sealed trait TransactionServiceStatus extends EnumEntry
+object TransactionServiceStatus extends Enum[TransactionServiceStatus] with PlayJsonEnum[TransactionServiceStatus] {
+
+  override val values: immutable.IndexedSeq[TransactionServiceStatus] = findValues
+
+  case object ACCOUNTNOTFOUND     extends TransactionServiceStatus
+  case object UNPROCESSABLEENTITY extends TransactionStatus
+
+}

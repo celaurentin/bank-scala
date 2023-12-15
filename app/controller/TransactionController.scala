@@ -11,6 +11,8 @@ import play.api.mvc.AbstractController
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.ControllerComponents
+import service.model.TransactionServiceStatus
+import service.model.TransactionServiceStatus.ACCOUNTNOTFOUND
 import service.TransactionServiceImpl
 
 class TransactionController @Inject() (
@@ -27,8 +29,8 @@ class TransactionController @Inject() (
         accountId
       )
       .map {
-        case Right(r) => Ok(Json.toJson(r))
-        case Left(_)  => NotFound
+        case Right(transactions) => Ok(Json.toJson(transactions))
+        case Left(_)             => NotFound
       }
   }
 
@@ -38,8 +40,8 @@ class TransactionController @Inject() (
         transactionId
       )
       .map {
-        case Right(t) => Ok(Json.toJson(t))
-        case Left(_)  => NotFound
+        case Right(transaction) => Ok(Json.toJson(transaction))
+        case Left(_)            => NotFound
       }
   }
 
@@ -50,8 +52,16 @@ class TransactionController @Inject() (
         request.body.amount,
         request.body.description
       )
-      .map(r => Ok(Json.toJson(r)))
+      .map {
+        case Right(result)      => Created(Json.toJson(result))
+        case Left(failedReason) => convert(failedReason)
+      }
 
+  }
+
+  private def convert(failedReason: TransactionServiceStatus): Status = failedReason match {
+    case ACCOUNTNOTFOUND => NotFound
+    case _               => UnprocessableEntity
   }
 
 }
