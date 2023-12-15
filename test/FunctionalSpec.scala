@@ -18,6 +18,14 @@ class FunctionalSpec extends PlaySpec with GuiceOneAppPerSuite {
     "send 404 on empty accountId" in {
       route(app, FakeRequest(GET, "/account")).map(status(_)) mustBe Some(NOT_FOUND)
     }
+
+    "send 404 on non-existing accountId" in {
+      route(app, FakeRequest(GET, "/account/666")).map(status(_)) mustBe Some(NOT_FOUND)
+    }
+
+    "send 200 on valid accountId" in {
+      route(app, FakeRequest(GET, "/account/100")).map(status(_)) mustBe Some(OK)
+    }
   }
 
   "Transaction Routes" should {
