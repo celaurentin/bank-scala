@@ -23,9 +23,9 @@ trait AccountService {
 
 @Singleton
 class AccountServiceImpl @Inject() (
-    implicit val ec: ExecutionContext,
     accountRepository: AccountRepository,
-    userRepository: UserRepository
+    userRepository: UserRepository,
+    implicit val ec: ExecutionContext
 ) extends AccountService {
 
   val logger: Logger = LoggerFactory.getLogger("AccountServiceImpl")

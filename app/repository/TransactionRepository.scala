@@ -2,7 +2,10 @@ package repository
 
 import java.sql.Timestamp
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.db.slick.HasDatabaseConfigProvider
 import service.model.Transaction
@@ -17,6 +20,10 @@ class TransactionRepository @Inject() (protected val dbConfigProvider: DatabaseC
 
   def findById(id: Long): Future[Option[Transaction]] =
     db.run(transactions.filter(_.transactionId === id).result.headOption)
+
+  def findByAccountId(accountId: String): Future[Seq[Transaction]] = {
+    db.run[Seq[Transaction]](transactions.filter(_.accountId === accountId).result)
+  }
 
   private class TransactionTable(tag: Tag) extends Table[Transaction](tag, "BANK_TRANSACTION") {
 
