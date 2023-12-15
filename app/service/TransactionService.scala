@@ -2,18 +2,16 @@ package service
 
 import java.time.LocalDateTime
 import javax.inject.Inject
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Random
-
 import com.google.inject.Singleton
 import controller.model.TransactionDetail
 import repository.AccountRepository
 import repository.TransactionRepository
 import service.model.Transaction
 import service.model.TransactionServiceStatus
-import service.model.TransactionServiceStatus.ACCOUNTNOTFOUND
+import service.model.TransactionServiceStatus.{ACCOUNTNOTFOUND, UNPROCESSABLEENTITY}
 import service.model.TransactionStatus
 
 trait TransactionService {
@@ -79,16 +77,20 @@ class TransactionServiceImpl @Inject() (
           transactionRepository
             .findByAccountId(account.accountId)
             .map(transactions =>
-              Right(
-                TransactionDetail(
-                  Random.nextInt(9999999),
-                  accountId,
-                  amount,
-                  description,
-                  TransactionStatus.COMPLETED,
-                  LocalDateTime.now()
+              if (hasEnoughFunds(amount, transactions))
+                Right(
+                  TransactionDetail(
+                    Random.nextInt(9999999),
+                    accountId,
+                    amount,
+                    description,
+                    TransactionStatus.COMPLETED,
+                    LocalDateTime.now()
+                  )
                 )
-              )
+              else
+                Left(UNPROCESSABLEENTITY)
+
             )
         case _ => Future.successful(Left(ACCOUNTNOTFOUND))
       }
@@ -112,9 +114,15 @@ class TransactionServiceImpl @Inject() (
       }
   }
 
-  /*private def totalAmount(records: List[LoanRecord]): Int =
-    records.foldLeft(0)((acumm, loan) => acumm + loan.amount)
+  //TODO: create a method to validate funds in case of debits (including pending Txs)
+  private def hasEnoughFunds(amount: Double, transactions: Seq[Transaction]): Boolean = {
+    if (amount < 0) {
+      val totalAmount = transactions.foldLeft(0.0)((acumm, transaction) => acumm + transaction.amount)
+      totalAmount > 0
+    }
+    else true
+  }
 
-  private def totalCount(records: List[LoanRecord]): Int = records.size*/
+  //private def totalCount(transactions: Seq[Transactions]): Int = transactions.size
 
 }
