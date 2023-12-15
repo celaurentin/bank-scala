@@ -30,7 +30,7 @@ class TransactionRepository @Inject() (protected val dbConfigProvider: DatabaseC
     def * =
       (transactionId, accountId, amount, description, status, created) <> (Transaction.tupled, Transaction.unapply)
 
-    def transactionId = column[Long]("TRANSACTION_ID", O.PrimaryKey)
+    def transactionId = column[Long]("TRANSACTION_ID", O.PrimaryKey, O.AutoInc)
 
     def accountId = column[String]("ACCOUNT_ID")
 
