@@ -16,7 +16,7 @@ import repository.TransactionRepository
 import service.model.Transaction
 import service.model.TransactionServiceStatus
 import service.model.TransactionServiceStatus.ACCOUNTNOTFOUND
-import service.model.TransactionServiceStatus.UNPROCESSABLEENTITY
+import service.model.TransactionServiceStatus.INSUFFICIENTFUNDS
 import service.model.TransactionStatus
 import slick.jdbc.H2Profile
 
@@ -24,10 +24,6 @@ trait TransactionService {
   def getHistory(
       accountId: String
   ): Future[Either[TransactionServiceStatus, List[TransactionDetail]]]
-
-  def getTransactionById(
-      transactionId: Long
-  ): Future[Either[TransactionServiceStatus, TransactionDetail]]
 
   def createTransaction(
       accountId: String,
@@ -57,24 +53,9 @@ class TransactionServiceImpl @Inject() (
         case Some(account) =>
           transactionRepository
             .findByAccountId(account.accountId)
-            .map(transactions => Right(convert(transactions).sortBy(_.date).reverse))
+            .map(transactions => Right(transactions.map(convert).toList.sortBy(_.date).reverse))
         case _ => Future.successful(Left(ACCOUNTNOTFOUND))
       }
-
-  private def convert(transactions: Seq[Transaction]): List[TransactionDetail] = {
-    transactions
-      .map(t =>
-        TransactionDetail(
-          transactionId = t.transactionId,
-          accountId = t.accountId,
-          amount = t.amount,
-          description = t.description,
-          status = TransactionStatus.withName(t.status),
-          date = t.created.toLocalDateTime
-        )
-      )
-      .toList
-  }
 
   override def createTransaction(
       accountId: String,
@@ -90,17 +71,26 @@ class TransactionServiceImpl @Inject() (
             .flatMap(transactions =>
               if (hasEnoughFunds(account.balance, amount, transactions)) {
                 val finalBalance = safeSubtraction(account.balance, amount)
-                val action = (for {
+                val dbAction = (for {
                   savedTransaction <- transactionRepository.create(accountId, amount, description, convert(description))
                   updatedBalance   <- accountRepository.updateBalance(accountId, finalBalance)
                 } yield (savedTransaction, updatedBalance)).transactionally
-                db.run(action).map(result => Right(convert(result._1)))
+                db.run(dbAction).map(result => Right(convert(result._1)))
               } else
-                Future.successful(Left(UNPROCESSABLEENTITY))
+                Future.successful(Left(INSUFFICIENTFUNDS))
             )
         case _ => Future.successful(Left(ACCOUNTNOTFOUND))
       }
   }
+
+  private def convert(tx: Transaction): TransactionDetail = TransactionDetail(
+    transactionId = tx.transactionId,
+    accountId = tx.accountId,
+    amount = tx.amount,
+    description = tx.description,
+    status = TransactionStatus.withName(tx.status),
+    date = tx.created.toLocalDateTime
+  )
 
   private def convert(description: String): TransactionStatus =
     if (description.toUpperCase.contains("PND")) TransactionStatus.PENDING else TransactionStatus.COMPLETED
@@ -134,28 +124,5 @@ class TransactionServiceImpl @Inject() (
   }
 
   private def safeSubtraction(a: Double, b: Double): Double = a - (-1 * b)
-
-  private def convert(tx: Transaction): TransactionDetail = TransactionDetail(
-    transactionId = tx.transactionId,
-    accountId = tx.accountId,
-    amount = tx.amount,
-    description = tx.description,
-    status = TransactionStatus.withName(tx.status),
-    date = tx.created.toLocalDateTime
-  )
-
-  override def getTransactionById(transactionId: Long): Future[Either[TransactionServiceStatus, TransactionDetail]] = {
-    transactionRepository
-      .findById(transactionId)
-      .map {
-        case Some(tx) =>
-          Right(
-            convert(tx)
-          )
-        case _ => Left(ACCOUNTNOTFOUND)
-      }
-  }
-
-  // private def totalCount(transactions: Seq[Transactions]): Int = transactions.size
 
 }

@@ -13,6 +13,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.ControllerComponents
 import service.model.TransactionServiceStatus
 import service.model.TransactionServiceStatus.ACCOUNTNOTFOUND
+import service.model.TransactionServiceStatus.INSUFFICIENTFUNDS
 import service.TransactionServiceImpl
 
 class TransactionController @Inject() (
@@ -34,17 +35,6 @@ class TransactionController @Inject() (
       }
   }
 
-  def getTransaction(transactionId: Long): Action[AnyContent] = Action.async {
-    transactionService
-      .getTransactionById(
-        transactionId
-      )
-      .map {
-        case Right(transaction) => Ok(Json.toJson(transaction))
-        case Left(_)            => NotFound
-      }
-  }
-
   def create: Action[TransactionRequest] = Action.async(parse.json[TransactionRequest]) { implicit request =>
     transactionService
       .createTransaction(
@@ -60,8 +50,9 @@ class TransactionController @Inject() (
   }
 
   private def convert(failedReason: TransactionServiceStatus): Status = failedReason match {
-    case ACCOUNTNOTFOUND => NotFound
-    case _               => UnprocessableEntity
+    case ACCOUNTNOTFOUND   => NotFound
+    case INSUFFICIENTFUNDS => UnprocessableEntity
+    case _                 => UnprocessableEntity
   }
 
 }

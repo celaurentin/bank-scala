@@ -20,6 +20,6 @@ object TransactionServiceStatus extends Enum[TransactionServiceStatus] with Play
   override val values: immutable.IndexedSeq[TransactionServiceStatus] = findValues
 
   case object ACCOUNTNOTFOUND     extends TransactionServiceStatus
-  case object UNPROCESSABLEENTITY extends TransactionServiceStatus
+  case object INSUFFICIENTFUNDS extends TransactionServiceStatus
 
 }

@@ -21,7 +21,7 @@ class AccountRepository @Inject() (protected val dbConfigProvider: DatabaseConfi
     db.run(accounts.filter(_.accountId === accountId).result.headOption)
 
   def updateBalance(accountId: String, amount: Double): DBIO[Int] =
-    accounts.filter(_.accountId === accountId).map(_.balance).update(amount).transactionally
+    accounts.filter(_.accountId === accountId).map(_.balance).update(amount)
 
   private class AccountTable(tag: Tag) extends Table[Account](tag, "BANK_ACCOUNT") {
 
