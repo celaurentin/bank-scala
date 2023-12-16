@@ -18,13 +18,13 @@ sbt run
 ## Routes and parameters
 
 - `/account/{account_id}`: GET endpoint to retrieve the balance and user details of a bank account
-![](/Users/cesarlaurentin/code/bank-scala/docs/account.png)
+![](docs/account.png)
 
 - `/transaction/`: POST endpoint to create a new transaction for a bank account
-![](/Users/cesarlaurentin/code/bank-scala/docs/transaction.png)
+![](docs/transaction.png)
 
 - `/transaction/history/{account_id}`: GET endpoint to retrieve the history of transactions for a bank account
-![](/Users/cesarlaurentin/code/bank-scala/docs/transaction-history.png)
+![](docs/transaction-history.png)
 
 ## Test results
-![](/Users/cesarlaurentin/code/bank-scala/docs/scalatests.png)
+![](docs/scalatests.png)
