@@ -9,6 +9,8 @@ import com.google.inject.Singleton
 import controller.model.TransactionDetail
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import play.api.db.slick.DatabaseConfigProvider
+import play.api.db.slick.HasDatabaseConfigProvider
 import repository.AccountRepository
 import repository.TransactionRepository
 import service.model.Transaction
@@ -16,6 +18,7 @@ import service.model.TransactionServiceStatus
 import service.model.TransactionServiceStatus.ACCOUNTNOTFOUND
 import service.model.TransactionServiceStatus.UNPROCESSABLEENTITY
 import service.model.TransactionStatus
+import slick.jdbc.H2Profile
 
 trait TransactionService {
   def getHistory(
@@ -35,10 +38,13 @@ trait TransactionService {
 
 @Singleton
 class TransactionServiceImpl @Inject() (
+    protected val dbConfigProvider: DatabaseConfigProvider,
     transactionRepository: TransactionRepository,
     accountRepository: AccountRepository,
     implicit val ec: ExecutionContext
-) extends TransactionService {
+) extends TransactionService
+    with HasDatabaseConfigProvider[H2Profile] {
+  import profile.api._
 
   val logger: Logger = LoggerFactory.getLogger("TransactionServiceImpl")
 
@@ -82,15 +88,14 @@ class TransactionServiceImpl @Inject() (
           transactionRepository
             .findByAccountId(account.accountId)
             .flatMap(transactions =>
-              if (hasEnoughFunds(account.balance, amount, transactions))
-                transactionRepository
-                  .create(accountId, amount, description, convert(description))
-                  .map { tx =>
-                    val finalBalance = safeSubtraction(account.balance, amount)
-                    accountRepository.updateBalance(accountId, finalBalance)
-                    Right(convert(tx))
-                  }
-              else
+              if (hasEnoughFunds(account.balance, amount, transactions)) {
+                val finalBalance = safeSubtraction(account.balance, amount)
+                val action = (for {
+                  savedTransaction <- transactionRepository.create(accountId, amount, description, convert(description))
+                  updatedBalance   <- accountRepository.updateBalance(accountId, finalBalance)
+                } yield (savedTransaction, updatedBalance)).transactionally
+                db.run(action).map(result => Right(convert(result._1)))
+              } else
                 Future.successful(Left(UNPROCESSABLEENTITY))
             )
         case _ => Future.successful(Left(ACCOUNTNOTFOUND))
@@ -130,6 +135,15 @@ class TransactionServiceImpl @Inject() (
 
   private def safeSubtraction(a: Double, b: Double): Double = a - (-1 * b)
 
+  private def convert(tx: Transaction): TransactionDetail = TransactionDetail(
+    transactionId = tx.transactionId,
+    accountId = tx.accountId,
+    amount = tx.amount,
+    description = tx.description,
+    status = TransactionStatus.withName(tx.status),
+    date = tx.created.toLocalDateTime
+  )
+
   override def getTransactionById(transactionId: Long): Future[Either[TransactionServiceStatus, TransactionDetail]] = {
     transactionRepository
       .findById(transactionId)
@@ -141,15 +155,6 @@ class TransactionServiceImpl @Inject() (
         case _ => Left(ACCOUNTNOTFOUND)
       }
   }
-
-  private def convert(tx: Transaction): TransactionDetail = TransactionDetail(
-    transactionId = tx.transactionId,
-    accountId = tx.accountId,
-    amount = tx.amount,
-    description = tx.description,
-    status = TransactionStatus.withName(tx.status),
-    date = tx.created.toLocalDateTime
-  )
 
   // private def totalCount(transactions: Seq[Transactions]): Int = transactions.size
 

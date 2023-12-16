@@ -29,7 +29,7 @@ class TransactionRepository @Inject() (
     db.run[Seq[Transaction]](transactions.filter(_.accountId === accountId).result)
   }
 
-  def create(accountId: String, amount: Double, description: String, status: TransactionStatus): Future[Transaction] = {
+  def create(accountId: String, amount: Double, description: String, status: TransactionStatus): DBIO[Transaction] = {
     val insertTransaction = transactions
       .returning(transactions.map(_.transactionId))
       .into((tx, id) => tx.copy(transactionId = id))
@@ -44,7 +44,7 @@ class TransactionRepository @Inject() (
         created = new java.sql.Timestamp(System.currentTimeMillis())
       )
 
-    db.run(insertAction)
+    insertAction
   }
 
   private class TransactionTable(tag: Tag) extends Table[Transaction](tag, "BANK_TRANSACTION") {
