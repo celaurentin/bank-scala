@@ -4,6 +4,8 @@ import javax.inject.Inject
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
 
 import com.google.inject.Singleton
 import controller.model.TransactionDetail
@@ -16,6 +18,7 @@ import repository.TransactionRepository
 import service.model.Transaction
 import service.model.TransactionServiceStatus
 import service.model.TransactionServiceStatus.ACCOUNTNOTFOUND
+import service.model.TransactionServiceStatus.DBERROR
 import service.model.TransactionServiceStatus.INSUFFICIENTFUNDS
 import service.model.TransactionStatus
 import slick.jdbc.H2Profile
@@ -57,6 +60,15 @@ class TransactionServiceImpl @Inject() (
         case _ => Future.successful(Left(ACCOUNTNOTFOUND))
       }
 
+  private def convert(tx: Transaction): TransactionDetail = TransactionDetail(
+    transactionId = tx.transactionId,
+    accountId = tx.accountId,
+    amount = tx.amount,
+    description = tx.description,
+    status = TransactionStatus.withName(tx.status),
+    date = tx.created.toLocalDateTime
+  )
+
   override def createTransaction(
       accountId: String,
       amount: Double,
@@ -75,22 +87,18 @@ class TransactionServiceImpl @Inject() (
                   savedTransaction <- transactionRepository.create(accountId, amount, description, convert(description))
                   updatedBalance   <- accountRepository.updateBalance(accountId, finalBalance)
                 } yield (savedTransaction, updatedBalance)).transactionally
-                db.run(dbAction).map(result => Right(convert(result._1)))
+                db.run(dbAction.asTry).map {
+                  case Failure(ex) =>
+                    logger.error(s"Failed transaction: $ex")
+                    Left(DBERROR)
+                  case Success(result) => Right(convert(result._1))
+                }
               } else
                 Future.successful(Left(INSUFFICIENTFUNDS))
             )
         case _ => Future.successful(Left(ACCOUNTNOTFOUND))
       }
   }
-
-  private def convert(tx: Transaction): TransactionDetail = TransactionDetail(
-    transactionId = tx.transactionId,
-    accountId = tx.accountId,
-    amount = tx.amount,
-    description = tx.description,
-    status = TransactionStatus.withName(tx.status),
-    date = tx.created.toLocalDateTime
-  )
 
   private def convert(description: String): TransactionStatus =
     if (description.toUpperCase.contains("PND")) TransactionStatus.PENDING else TransactionStatus.COMPLETED

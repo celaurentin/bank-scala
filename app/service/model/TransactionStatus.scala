@@ -21,5 +21,6 @@ object TransactionServiceStatus extends Enum[TransactionServiceStatus] with Play
 
   case object ACCOUNTNOTFOUND     extends TransactionServiceStatus
   case object INSUFFICIENTFUNDS extends TransactionServiceStatus
+  case object DBERROR extends TransactionServiceStatus
 
 }

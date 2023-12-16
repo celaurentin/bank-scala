@@ -13,6 +13,7 @@ import play.api.mvc.AnyContent
 import play.api.mvc.ControllerComponents
 import service.model.TransactionServiceStatus
 import service.model.TransactionServiceStatus.ACCOUNTNOTFOUND
+import service.model.TransactionServiceStatus.DBERROR
 import service.model.TransactionServiceStatus.INSUFFICIENTFUNDS
 import service.TransactionServiceImpl
 
@@ -52,6 +53,7 @@ class TransactionController @Inject() (
   private def convert(failedReason: TransactionServiceStatus): Status = failedReason match {
     case ACCOUNTNOTFOUND   => NotFound
     case INSUFFICIENTFUNDS => UnprocessableEntity
+    case DBERROR           => UnprocessableEntity
     case _                 => UnprocessableEntity
   }
 
