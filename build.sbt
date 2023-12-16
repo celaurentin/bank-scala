@@ -1,9 +1,12 @@
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala)
+  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(DockerPlugin)
   .settings(
     name := """directbooks-coding-exercise""",
     version := "1.0-SNAPSHOT",
     scalaVersion := "2.13.12",
+    dockerBaseImage := "adoptopenjdk:11.0.7_10-jre-hotspot",
     libraryDependencies ++= Seq(
       guice,
       evolutions,
