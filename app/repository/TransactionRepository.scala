@@ -9,6 +9,7 @@ import scala.concurrent.Future
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.db.slick.HasDatabaseConfigProvider
 import service.model.Transaction
+import service.model.TransactionStatus
 import slick.jdbc.H2Profile
 
 class TransactionRepository @Inject() (protected val dbConfigProvider: DatabaseConfigProvider)(
@@ -23,6 +24,24 @@ class TransactionRepository @Inject() (protected val dbConfigProvider: DatabaseC
 
   def findByAccountId(accountId: String): Future[Seq[Transaction]] = {
     db.run[Seq[Transaction]](transactions.filter(_.accountId === accountId).result)
+  }
+
+  def create(accountId: String, amount: Double, description: String, status: TransactionStatus): Future[Transaction] = {
+    val insertTransaction = transactions
+      .returning(transactions.map(_.transactionId))
+      .into((tx, id) => tx.copy(transactionId = id))
+
+    val action = insertTransaction +=
+    Transaction(
+      0,
+      accountId = accountId,
+      amount = amount,
+      description = description,
+      status = status.entryName,
+      created = new java.sql.Timestamp(System.currentTimeMillis())
+    )
+
+    db.run(action)
   }
 
   private class TransactionTable(tag: Tag) extends Table[Transaction](tag, "BANK_TRANSACTION") {

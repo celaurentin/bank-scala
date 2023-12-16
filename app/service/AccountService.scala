@@ -8,8 +8,6 @@ import scala.concurrent.Future
 
 import controller.model.AccountDetail
 import controller.model.UserDetail
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import repository.AccountRepository
 import repository.UserRepository
 import service.model.Account
@@ -27,8 +25,6 @@ class AccountServiceImpl @Inject() (
     userRepository: UserRepository,
     implicit val ec: ExecutionContext
 ) extends AccountService {
-
-  val logger: Logger = LoggerFactory.getLogger("AccountServiceImpl")
 
   override def getAccountById(accountId: String): Future[Either[String, AccountDetail]] = {
     accountRepository
