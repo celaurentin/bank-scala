@@ -1,10 +1,13 @@
+import controller.model.AccountDetail
 import controller.model.TransactionDetail
+import controller.model.UserDetail
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.JsArray
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import service.model.AccountStatus
 import FunctionalSpec.Fixture
 
 /**
@@ -26,6 +29,14 @@ class FunctionalSpec extends PlaySpec with GuiceOneAppPerSuite with Fixture {
     "send 200 on valid accountId" in {
       route(app, FakeRequest(GET, "/account/100")).map(status(_)) mustBe Some(OK)
     }
+
+    "return account details" in {
+      val response = route(app, FakeRequest(GET, "/account/200")).get
+      status(response) mustBe OK
+      contentType(response) mustBe Some("application/json")
+      val json = contentAsJson(response)
+      json.as[AccountDetail] mustBe expectedAccount
+    }
   }
 
   "Transaction Routes" should {
@@ -44,15 +55,23 @@ class FunctionalSpec extends PlaySpec with GuiceOneAppPerSuite with Fixture {
       route(app, FakeRequest(POST, "/transaction").withJsonBody(body)).map(status(_)) mustBe Some(BAD_REQUEST)
     }
 
-    "send 200 on valid transactionId" in {
-      route(app, FakeRequest(GET, "/transaction/1")).map(status(_)) mustBe Some(OK)
+    "send 422 due to insufficient funds" in {
+      val body = Json.obj(("accountId", "100"), ("amount", -1000000.0), ("description", "CASHIER:CASH"))
+      route(app, FakeRequest(POST, "/transaction").withJsonBody(body)).map(status(_)) mustBe Some(
+        UNPROCESSABLE_ENTITY
+      )
+    }
+
+    "send 201 on sufficient funds" in {
+      val body = Json.obj(("accountId", "200"), ("amount", -10.0), ("description", "CASHIER:CASH"))
+      route(app, FakeRequest(POST, "/transaction").withJsonBody(body)).map(status(_)) mustBe Some(CREATED)
     }
   }
 
   "Transaction History Route" should {
 
-    "send 400 on invalid request" in {
-      route(app, FakeRequest(GET, "/transaction/history")).map(status(_)) mustBe Some(BAD_REQUEST)
+    "send 404 on invalid request" in {
+      route(app, FakeRequest(GET, "/transaction/history")).map(status(_)) mustBe Some(NOT_FOUND)
     }
 
     "send 404 on non-existing accountId" in {
@@ -82,5 +101,16 @@ object FunctionalSpec {
     val expectedAmount1 = -12.5
     val expectedId2     = 2
     val expectedAmount2 = 100
+    val expectedUser = UserDetail(
+      userId = 10,
+      firstName = "Charon",
+      lastName = "Manager"
+    )
+    val expectedAccount = AccountDetail(
+      accountId = "200",
+      balance = 720.0,
+      status = AccountStatus.ACTIVE,
+      user = expectedUser
+    )
   }
 }

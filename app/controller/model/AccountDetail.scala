@@ -17,11 +17,11 @@ case class UserDetail(
 )
 
 object AccountDetail {
-  implicit val AccountDetailFormat: OWrites[AccountDetail] = Json.writes[AccountDetail]
+  implicit val AccountDetailFormat: OFormat[AccountDetail] = Json.format[AccountDetail]
 
 }
 
 object UserDetail {
-  implicit val UserFormat: OWrites[UserDetail] = Json.writes[UserDetail]
+  implicit val UserFormat: OFormat[UserDetail] = Json.format[UserDetail]
 
 }
