@@ -12,7 +12,10 @@ import service.model.Transaction
 import service.model.TransactionStatus
 import slick.jdbc.H2Profile
 
-class TransactionRepository @Inject() (protected val dbConfigProvider: DatabaseConfigProvider)(
+class TransactionRepository @Inject() (
+    protected val dbConfigProvider: DatabaseConfigProvider,
+    accountRepository: AccountRepository
+)(
     implicit ec: ExecutionContext
 ) extends HasDatabaseConfigProvider[H2Profile] {
   import profile.api._
@@ -31,17 +34,17 @@ class TransactionRepository @Inject() (protected val dbConfigProvider: DatabaseC
       .returning(transactions.map(_.transactionId))
       .into((tx, id) => tx.copy(transactionId = id))
 
-    val action = insertTransaction +=
-    Transaction(
-      0,
-      accountId = accountId,
-      amount = amount,
-      description = description,
-      status = status.entryName,
-      created = new java.sql.Timestamp(System.currentTimeMillis())
-    )
+    val insertAction = insertTransaction +=
+      Transaction(
+        0,
+        accountId = accountId,
+        amount = amount,
+        description = description,
+        status = status.entryName,
+        created = new java.sql.Timestamp(System.currentTimeMillis())
+      )
 
-    db.run(action)
+    db.run(insertAction)
   }
 
   private class TransactionTable(tag: Tag) extends Table[Transaction](tag, "BANK_TRANSACTION") {

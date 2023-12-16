@@ -86,6 +86,8 @@ class TransactionServiceImpl @Inject() (
                 transactionRepository
                   .create(accountId, amount, description, convert(description))
                   .map { tx =>
+                    val finalBalance = safeSubtraction(account.balance, amount)
+                    accountRepository.updateBalance(accountId, finalBalance)
                     Right(convert(tx))
                   }
               else
@@ -114,8 +116,8 @@ class TransactionServiceImpl @Inject() (
         .filter(_.status == TransactionStatus.PENDING.entryName)
         .foldLeft(0.0)((acumm, transaction) => acumm + transaction.amount)
 
-      val actualAvailability    = balance - (-1 * totalPendingAmount)
-      val balanceAfterOperation = actualAvailability - (-1 * amount)
+      val actualAvailability    = safeSubtraction(balance, totalPendingAmount)
+      val balanceAfterOperation = safeSubtraction(actualAvailability, amount)
 
       logger.debug(
         s"Pending amount: $totalPendingAmount, Actual funds:$actualAvailability, After operation:$balanceAfterOperation"
@@ -125,6 +127,8 @@ class TransactionServiceImpl @Inject() (
       // Nothing to validate
       true
   }
+
+  private def safeSubtraction(a: Double, b: Double): Double = a - (-1 * b)
 
   override def getTransactionById(transactionId: Long): Future[Either[TransactionServiceStatus, TransactionDetail]] = {
     transactionRepository

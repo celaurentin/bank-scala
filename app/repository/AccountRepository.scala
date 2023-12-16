@@ -17,8 +17,11 @@ class AccountRepository @Inject() (protected val dbConfigProvider: DatabaseConfi
 
   private val accounts = TableQuery[AccountTable]
 
-  def findById(id: String): Future[Option[Account]] =
-    db.run(accounts.filter(_.accountId === id).result.headOption)
+  def findById(accountId: String): Future[Option[Account]] =
+    db.run(accounts.filter(_.accountId === accountId).result.headOption)
+
+  def updateBalance(accountId: String, amount: Double): Future[Int] =
+    db.run(accounts.filter(_.accountId === accountId).map(_.balance).update(amount))
 
   private class AccountTable(tag: Tag) extends Table[Account](tag, "BANK_ACCOUNT") {
 
